@@ -59,7 +59,8 @@ class ModelBuilder(object):
                 func = eval('{name}'.format(name=name))
                 model = func(num_classes=num_classes)
             elif name in ['resnet56']:
-                assert num_classes == 10, "this resnet is for CIFAR"
+                # assert num_classes == 10, "this resnet is for CIFAR"
+                print('this resnet is basically used for CIFAR')
                 func = eval('{name}'.format(name=name))
                 model = func()
             # call torchvision function
