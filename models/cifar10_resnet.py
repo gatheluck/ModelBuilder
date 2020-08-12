@@ -79,7 +79,7 @@ class BasicBlock(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_blocks, num_classes=10, num_second_classes=None):
         super(ResNet, self).__init__()
         self.in_planes = 16
 
@@ -89,6 +89,9 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 32, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 64, num_blocks[2], stride=2)
         self.linear = nn.Linear(64, num_classes)
+
+        if num_second_classes:
+            self.linear_second = nn.Linear(64, num_second_classes)
 
         self.apply(_weights_init)
 
@@ -109,7 +112,14 @@ class ResNet(nn.Module):
         out = F.avg_pool2d(out, out.size()[3])
         out = out.view(out.size(0), -1)
         out = self.linear(out)
-        return out
+
+        if self.linear_second:
+            out_pri = self.linear(out)
+            out_sec = self.linear_second(out)
+            return out_pri, out_sec
+        else:
+            out = self.linear(out)
+            return out
 
 
 def resnet20(num_classes=10):

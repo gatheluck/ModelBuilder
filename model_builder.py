@@ -39,7 +39,7 @@ class ModelBuilder(object):
         return [arch + depth for arch in self.MODEL_CONFIG.keys()
                              for depth in self.MODEL_CONFIG[arch]]
 
-    def _get_classifier(self, name, num_classes=1000, pretrained=False, inplace=True, use_bn=True):
+    def _get_classifier(self, name, num_classes=1000, num_second_classes=None, pretrained=False, inplace=True, use_bn=True):
         # get pretrained model
         if pretrained:
             # call torchvision function
@@ -62,7 +62,7 @@ class ModelBuilder(object):
                 # assert num_classes == 10, "this resnet is for CIFAR"
                 print('this resnet is basically used for CIFAR')
                 func = eval('{name}'.format(name=name))
-                model = func(num_classes=num_classes)
+                model = func(num_classes=num_classes, num_second_classes=num_second_classes)
             # call torchvision function
             else:
                 func = eval('torchvision.models.{name}'.format(name=name))
