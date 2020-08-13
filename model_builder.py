@@ -88,7 +88,12 @@ class ModelBuilder(object):
 
 
 if __name__ == '__main__':
-    model_builder = ModelBuilder(10, pretrained=False)
+    model_builder = ModelBuilder(10, 496, pretrained=False)
     print(model_builder.available_models)
-    model = model_builder['resnet50']
+    model = model_builder['resnet56']
     print(model)
+
+    x = torch.randn(256, 3, 32, 32)
+    y1, y2 = model(x)
+    print(y1.shape)
+    print(y2.shape)

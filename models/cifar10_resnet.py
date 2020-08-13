@@ -112,7 +112,7 @@ class ResNet(nn.Module):
         out = self.layer3(out)
         out = F.avg_pool2d(out, out.size()[3])
         out = out.view(out.size(0), -1)
-        out = self.linear(out)
+        # out = self.linear(out)
 
         if self.num_second_classes:
             out_pri = self.linear(out)
