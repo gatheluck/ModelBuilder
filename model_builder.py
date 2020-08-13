@@ -22,17 +22,18 @@ class ModelBuilder(object):
         'wideresnet': '16 28 40'.split(),
     }
 
-    def __init__(self, num_classes: int, pretrained=False, inplace=True, use_bn=True):
+    def __init__(self, num_classes: int, num_second_classes: int = None, pretrained=False, inplace=True, use_bn=True):
         assert num_classes > 0
 
         self.num_classes = num_classes
+        self.num_second_classes = num_second_classes
         self.pretrained = pretrained
         self.inplace = inplace
         self.use_bn = use_bn
 
     def __getitem__(self, name):
         assert name in self.available_models
-        return self._get_classifier(name, num_classes=self.num_classes, pretrained=self.pretrained, inplace=self.inplace, use_bn=self.use_bn)
+        return self._get_classifier(name, num_classes=self.num_classes, num_second_classes=self.num_second_classes, pretrained=self.pretrained, inplace=self.inplace, use_bn=self.use_bn)
 
     @property
     def available_models(self):
