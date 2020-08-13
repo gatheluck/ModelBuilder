@@ -90,7 +90,8 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block, 64, num_blocks[2], stride=2)
         self.linear = nn.Linear(64, num_classes)
 
-        if num_second_classes:
+        self.num_second_classes = num_second_classes
+        if self.num_second_classes:
             self.linear_second = nn.Linear(64, num_second_classes)
 
         self.apply(_weights_init)
@@ -113,7 +114,7 @@ class ResNet(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.linear(out)
 
-        if self.linear_second:
+        if self.num_second_classes:
             out_pri = self.linear(out)
             out_sec = self.linear_second(out)
             return out_pri, out_sec
