@@ -79,7 +79,7 @@ class BasicBlock(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10, num_second_classes=None):
+    def __init__(self, block, num_blocks, num_classes=10):
         super(ResNet, self).__init__()
         self.in_planes = 16
 
@@ -89,10 +89,6 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 32, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 64, num_blocks[2], stride=2)
         self.linear = nn.Linear(64, num_classes)
-
-        self.num_second_classes = num_second_classes
-        if self.num_second_classes:
-            self.linear_second = nn.Linear(64, num_second_classes)
 
         self.apply(_weights_init)
 
@@ -105,22 +101,19 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, return_representation=False):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
         out = F.avg_pool2d(out, out.size()[3])
-        out = out.view(out.size(0), -1)
-        # out = self.linear(out)
+        rep = out.view(out.size(0), -1)
+        logit = self.linear(rep)
 
-        if self.num_second_classes:
-            out_pri = self.linear(out)
-            out_sec = self.linear_second(out)
-            return out_pri, out_sec
+        if return_representation:
+            return logit, rep
         else:
-            out = self.linear(out)
-            return out
+            return logit
 
 
 def resnet20(num_classes=10):
@@ -136,7 +129,7 @@ def resnet44(num_classes=10):
 
 
 def resnet56(num_classes=10, num_second_classes=None):
-    return ResNet(BasicBlock, [9, 9, 9], num_classes=num_classes, num_second_classes=num_second_classes)
+    return ResNet(BasicBlock, [9, 9, 9], num_classes=num_classes)
 
 
 def resnet110(num_classes=10):
