@@ -12,6 +12,7 @@ import torchvision
 from models.alexnet import alexnet_v2
 from models.wideresnet import wideresnet16, wideresnet28, wideresnet40
 from models.cifar10_resnet import resnet56
+from models.resnet import resnet50
 
 
 class ModelBuilder(object):
@@ -22,25 +23,24 @@ class ModelBuilder(object):
         'wideresnet': '16 28 40'.split(),
     }
 
-    def __init__(self, num_classes: int, num_second_classes: int = None, pretrained=False, inplace=True, use_bn=True):
+    def __init__(self, num_classes: int, pretrained=False, inplace=True, use_bn=True):
         assert num_classes > 0
 
         self.num_classes = num_classes
-        self.num_second_classes = num_second_classes
         self.pretrained = pretrained
         self.inplace = inplace
         self.use_bn = use_bn
 
     def __getitem__(self, name):
-        assert name in self.available_models
-        return self._get_classifier(name, num_classes=self.num_classes, num_second_classes=self.num_second_classes, pretrained=self.pretrained, inplace=self.inplace, use_bn=self.use_bn)
+        assert name in self.available_models()
+        return self._get_classifier(name, num_classes=self.num_classes, pretrained=self.pretrained, inplace=self.inplace, use_bn=self.use_bn)
 
-    @property
-    def available_models(self):
-        return [arch + depth for arch in self.MODEL_CONFIG.keys()
-                             for depth in self.MODEL_CONFIG[arch]]
+    @classmethod
+    def available_models(cls):
+        return [arch + depth for arch in cls.MODEL_CONFIG.keys()
+                             for depth in cls.MODEL_CONFIG[arch]]
 
-    def _get_classifier(self, name, num_classes=1000, num_second_classes=None, pretrained=False, inplace=True, use_bn=True):
+    def _get_classifier(self, name, num_classes=1000, pretrained=False, inplace=True, use_bn=True):
         # get pretrained model
         if pretrained:
             # call torchvision function
@@ -59,11 +59,11 @@ class ModelBuilder(object):
             elif name.startswith('wideresnet'):
                 func = eval('{name}'.format(name=name))
                 model = func(num_classes=num_classes)
-            elif name in ['resnet56']:
+            elif name in ['resnet56', 'resnet50']:
                 # assert num_classes == 10, "this resnet is for CIFAR"
-                print('this resnet is basically used for CIFAR')
+                # print('this resnet is basically used for CIFAR')
                 func = eval('{name}'.format(name=name))
-                model = func(num_classes=num_classes, num_second_classes=num_second_classes)
+                model = func(num_classes=num_classes)
             # call torchvision function
             else:
                 func = eval('torchvision.models.{name}'.format(name=name))
@@ -88,12 +88,24 @@ class ModelBuilder(object):
 
 
 if __name__ == '__main__':
-    model_builder = ModelBuilder(10, 496, pretrained=False)
-    print(model_builder.available_models)
-    model = model_builder['resnet56']
+    print(ModelBuilder.available_models())
+
+    # test resnet 50
+    model_builder = ModelBuilder(100, pretrained=False)
+    model = model_builder['resnet50'].cuda()
     print(model)
 
-    x = torch.randn(256, 3, 32, 32)
-    y1, y2 = model(x)
-    print(y1.shape)
-    print(y2.shape)
+    x = torch.randn(32, 3, 224, 224).cuda()
+    logit, rep = model(x, return_rep=True)
+    print(logit.shape)
+    print(rep.shape)
+
+    # test resnet 56
+    model_builder = ModelBuilder(10, pretrained=False)
+    model = model_builder['resnet56'].cuda()
+    print(model)
+
+    x = torch.randn(32, 3, 32, 32).cuda()
+    logit, rep = model(x, return_rep=True)
+    print(logit.shape)
+    print(rep.shape)

@@ -101,7 +101,7 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x, return_representation=False):
+    def forward(self, x, return_rep=False):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
         out = self.layer2(out)
@@ -110,33 +110,45 @@ class ResNet(nn.Module):
         rep = out.view(out.size(0), -1)
         logit = self.linear(rep)
 
-        if return_representation:
+        if return_rep:
             return logit, rep
         else:
             return logit
 
 
-def resnet20(num_classes=10):
+def resnet20(pretrained=False, num_classes=10):
+    if pretrained:
+        raise NotImplementedError('resnet for cifar10 dose not have pretrained models.')
     return ResNet(BasicBlock, [3, 3, 3], num_classes=num_classes)
 
 
-def resnet32(num_classes=10):
+def resnet32(pretrained=False, num_classes=10):
+    if pretrained:
+        raise NotImplementedError('resnet for cifar10 dose not have pretrained models.')
     return ResNet(BasicBlock, [5, 5, 5], num_classes=num_classes)
 
 
-def resnet44(num_classes=10):
+def resnet44(pretrained=False, num_classes=10):
+    if pretrained:
+        raise NotImplementedError('resnet for cifar10 dose not have pretrained models.')
     return ResNet(BasicBlock, [7, 7, 7], num_classes=num_classes)
 
 
-def resnet56(num_classes=10, num_second_classes=None):
+def resnet56(pretrained=False, num_classes=10):
+    if pretrained:
+        raise NotImplementedError('resnet for cifar10 dose not have pretrained models.')
     return ResNet(BasicBlock, [9, 9, 9], num_classes=num_classes)
 
 
-def resnet110(num_classes=10):
+def resnet110(pretrained=False, num_classes=10):
+    if pretrained:
+        raise NotImplementedError('resnet for cifar10 dose not have pretrained models.')
     return ResNet(BasicBlock, [18, 18, 18], num_classes=num_classes)
 
 
-def resnet1202(num_classes=10):
+def resnet1202(pretrained=False, num_classes=10):
+    if pretrained:
+        raise NotImplementedError('resnet for cifar10 dose not have pretrained models.')
     return ResNet(BasicBlock, [200, 200, 200], num_classes=num_classes)
 
 
